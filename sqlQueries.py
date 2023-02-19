@@ -21,7 +21,7 @@ def create_table():
         amount INTEGER,
         numof_travelers INTEGER NOT NULL,
         numof_nights INTEGER NOT NULL,
-        check_in  DATE DEFAULT '2023,2,10',
+        check_in  DATE DEFAULT ((current_date - INTERVAL '2 day')::date),
         check_out DATE DEFAULT NOW(),
         status VARCHAR(255) DEFAULT 'free'
         

@@ -1,4 +1,7 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from datetime import datetime
+
+from psycopg2._psycopg import DATE
 from typing import Optional
 
 
@@ -11,7 +14,7 @@ class Booking:
     amount: int
     numof_travelers: int
     numof_nights: int
-    check_in: str = ''
+    check_in: str =''
     check_out: str = ''
     status: str = "free"
     id: Optional[int] = None
