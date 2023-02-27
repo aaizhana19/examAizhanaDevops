@@ -1,16 +1,12 @@
 import psycopg2
+from sqlalchemy.engine import Connection
+from sqlalchemy import text
 
 from bookings import Booking
 
-conn = psycopg2.connect(
-    host="test.dsacademy.kz",
-    database="fortesting",
-    user="testing",
-    password="testing123"
-)
 
 
-def create_table():
+def create_table(conn: Connection):
     query = """
     CREATE TABLE IF NOT EXISTS bookings (
         id SERIAL PRIMARY KEY,
@@ -28,40 +24,46 @@ def create_table():
         )
     """
 
-    cursor = conn.cursor()
-    cursor.execute(query)
+
+    conn.execute(text(query))
     conn.commit()
 
 
-def insert_bookings(bookings: Booking):
+def insert_bookings(conn: Connection, bookings: Booking):
     query = """
     INSERT INTO bookings (name, type, price_for_nights, rooms, amount, numof_travelers, numof_nights)
-    VALUES (%s, %s, %s, %s, %s, %s, %s)
+    VALUES (:name, :type, :price_for_nights, :rooms,:amount,:numof_travelers,:numof_nights)
     """
 
-    cursor = conn.cursor()
-    cursor.execute(query, (bookings.name, bookings.type, bookings.price_for_nights, bookings.rooms, bookings.amount,
-                           bookings.numof_travelers,bookings.numof_nights ))
+
+    conn.execute(text(query),
+                 parameters = {
+                     "name" : bookings.name,
+                     "type" : bookings.type,
+                     "price_for_nights" : bookings.price_for_nights,
+                     "rooms": bookings.rooms,
+                     "amount": bookings.amount,
+                     "numof_travelers" : bookings.numof_travelers,
+                     "numof_nights" : bookings.numof_nights,
+                 },
+                 )
     conn.commit()
 
 
-def set_theamount():
+def set_theamount(conn: Connection):
     query = "UPDATE bookings SET amount=price_for_nights * numof_nights * numof_travelers, status='booked' WHERE status='free';"
-    cursor = conn.cursor()
-    cursor.execute(query)
+    conn.execute(text(query))
     conn.commit()
 
 
-def finish():
+def finish(conn: Connection):
     query = "UPDATE bookings SET status='finished' WHERE status='booked';"
-    cursor = conn.cursor()
-    cursor.execute(query)
+    conn.execute(text(query))
     conn.commit()
 
-def get_bookings() -> list[Booking]:
+def get_bookings(conn: Connection) -> list[Booking]:
     query = "SELECT * FROM bookings;"
-    cursor = conn.cursor()
-    cursor.execute(query)
+    bookingss = conn.execute(text(query)).fetchall()
     return [Booking(
         id =  bookings[0],
         name = bookings[1],
@@ -77,4 +79,4 @@ def get_bookings() -> list[Booking]:
 
 
 
-    ) for bookings in cursor.fetchall()]
+    ) for bookings in bookingss]

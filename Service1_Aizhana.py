@@ -2,12 +2,14 @@ import time
 import random
 from sqlQueries import create_table, insert_bookings
 from bookings import Booking
+from credentials import conn
 
-create_table()
+create_table(conn)
 
 if __name__ == '__main__':
     while True:
         insert_bookings(
+            conn,
             Booking(
                 name = random.choice(["Mandarin Oriental Jumeira", "AZUR Regency", "Royal Club","Golden Stay"]),
                 type = random.choice(["5 stars", "4 stars", "3 stars","2stars","1 star"]),
@@ -21,4 +23,4 @@ if __name__ == '__main__':
             )
         )
         print("Inserted")
-        time.sleep(10)
+        time.sleep(1)

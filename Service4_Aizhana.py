@@ -1,11 +1,11 @@
 import time
 from sqlQueries import create_table, get_bookings
-
-create_table()
+from credentials import conn
+create_table(conn)
 
 if __name__ == '__main__':
     while True:
-        bookings = get_bookings()
+        bookings = get_bookings(conn)
         print("--------------------Start printing booking data >>")
         for booking in bookings:
             print(booking)
