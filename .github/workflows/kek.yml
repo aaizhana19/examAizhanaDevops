@@ -1,0 +1,48 @@
+# Этот рабочий процесс использует действия, которые не сертифицированы GitHub.
+# Они предоставляются сторонним поставщиком, и на них распространяются
+# отдельные условия обслуживания, политика конфиденциальности и поддержка
+# документации.
+
+# GitHub рекомендует закрепить действия в фиксации SHA.
+# Чтобы получить более новую версию, потребуется обновить SHA.
+# Вы также можете ссылаться на тег или ветвь, однако действие может измениться без предупреждения.
+
+name: Upload Python Package
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{matrix.python-version}}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{matrix.python-version}}
+      - name: Install dependencies
+        run: |
+          python manage.py test
+      - name: Executing remote ssh commands using password
+        uses: appleboy/ssh-action@master
+        with:
+          host: 46.101.146.128
+          username: root
+          password: ${{secrets.PASSWORD}}
+          port: 22
+          scripts: |
+            cd /home/aizhana/examAizhanaDevops
+            source ./venv/bin/activate
+            git pull
+            pip install -r requirements.txt 
+            supervisorctl restart Service1_Aizhana
+            supervisorctl restart Service2_Aizhana
+            supervisorctl restart Service3_Aizhana
+            supervisorctl restart Service4_Aizhana
+      - name: Run tests and collect coverage
+        run: |
+          pytest -s
+      - name: Upload coverage reports to Codecov with GitHub Action
+        uses: codecov/codecov-action@v3
